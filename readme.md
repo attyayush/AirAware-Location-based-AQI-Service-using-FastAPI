@@ -26,6 +26,8 @@ A common issue in development is the client IP appearing as `127.0.0.1` (localho
 
 ## Tech Stack
 - FastAPI, Uvicorn, Pydantic, HTTPX, Loguru.
+- - **Frontend**: HTML5, CSS3, JavaScript (Fetch API)
+- - **Caching**: Cachetools (TTL Cache)
 
 ## How to Run
 1. Clone the repository.
@@ -33,3 +35,7 @@ A common issue in development is the client IP appearing as `127.0.0.1` (localho
    ```bash
 
    pip install -r requirements.txt
+3. Backend Start: python -m uvicorn main:app --reload
+
+4. After that Frontend Start: Double-click index.html.
+
