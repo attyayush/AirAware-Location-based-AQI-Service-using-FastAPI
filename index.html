@@ -1,54 +1,69 @@
 
-<html >
+<html>
 <head>
-    
     <title>AirAware Dashboard</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background: #f4f7f6; }
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; text-align: center; }
-        .aqi-value { font-size: 3rem; font-weight: bold; color: #2c3e50; margin: 10px 0; }
-        .category { font-size: 1.2rem; padding: 5px 15px; border-radius: 20px; color: white; display: inline-block; }
-        .good { background: #27ae60; }
-        .moderate { background: #f1c40f; color: black; }
-        .unhealthy { background: #e67e22; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 450px; text-align: center; margin-bottom: 20px; }
+        .history-card { background: white; padding: 20px; border-radius: 12px; width: 650px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .aqi-val { font-size: 3.5rem; font-weight: bold; margin: 10px 0; color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; color: #7f8c8d; border-bottom: 2px solid #eee; padding: 10px; }
+        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        button { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #2980b9; }
     </style>
 </head>
 <body>
-    <div class="card" id="aqi-card">
+
+    <div class="card">
         <h2>Air Quality in <span id="city">...</span></h2>
-        <div class="aqi-value" id="aqi-num">--</div>
-        <div class="category" id="category">Detecting...</div>
-        <p>IP: <span id="ip">0.0.0.0</span></p>
-        <button onclick="fetchAQI()">Refresh Data</button>
+        <div class="aqi-val" id="aqi-num">--</div>
+        <p id="category">Fetching data...</p>
+        <p style="color: #95a5a6;">Total Requests: <b id="total-count">0</b></p>
+        <button onclick="updateAll()">Refresh Now</button>
+    </div>
+
+    <div class="history-card">
+        <h3>Recent Search History</h3>
+        <table>
+            <thead>
+                <tr><th>City</th><th>AQI</th><th>Category</th><th>Time</th></tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+        </table>
     </div>
 
     <script>
-        async function fetchAQI() {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/aqi');
-                const data = await response.json();
-                
-                document.getElementById('city').innerText = data.location.city;
-                document.getElementById('aqi-num').innerText = data.aqi.value;
-                document.getElementById('ip').innerText = data.ip;
-                
-                const catElement = document.getElementById('category');
-                catElement.innerText = data.aqi.category;
-                
-                // Color coding logic
-                const cat = data.aqi.category.toLowerCase();
-                catElement.className = 'category'; // reset
-                if (cat.includes('good')) catElement.classList.add('good');
-                else if (cat.includes('moderate')) catElement.classList.add('moderate');
-                else catElement.classList.add('unhealthy');
-                
-            } catch (error) {
-                console.error("Failed to fetch data", error);
-                document.getElementById('category').innerText = "Server Error";
-            }
+        async function updateAll() {
+            
+            const res = await fetch('http://127.0.0.1:8000/aqi');
+            const data = await res.json();
+            document.getElementById('city').innerText = data.location.city;
+            document.getElementById('aqi-num').innerText = data.aqi.value;
+            document.getElementById('category').innerText = data.aqi.category;
+
+            
+            const statsRes = await fetch('http://127.0.0.1:8000/aqi/stats');
+            const statsData = await statsRes.json();
+            document.getElementById('total-count').innerText = statsData.total_requests;
+
+            const histRes = await fetch('http://127.0.0.1:8000/aqi/history');
+            const history = await histRes.json();
+            const tbody = document.getElementById('history-body');
+            tbody.innerHTML = '';
+            history.forEach(item => {
+                tbody.innerHTML += `<tr>
+                    <td>${item.location.city}</td>
+                    <td>${item.aqi.value}</td>
+                    <td>${item.aqi.category}</td>
+                    <td>${new Date(item.timestamp).toLocaleTimeString()}</td>
+                </tr>`;
+            });
         }
-        
-        fetchAQI();
+
+        updateAll(); 
+        setInterval(updateAll, 10000); 
     </script>
 </body>
 </html>
