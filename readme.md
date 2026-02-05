@@ -36,6 +36,13 @@ A common issue in development is the client IP appearing as `127.0.0.1` (localho
 
    pip install -r requirements.txt
 3. Backend Start: python -m uvicorn main:app --reload
+   4.Look for the message INFO: Application startup complete.
+4. Open browser and go to: http://127.0.0.1:8000/health
 
-4. After that Frontend Start: Double-click index.html.
+ You should see: {"status": "ok"}
+ 
+ 5.Run index.html
+ 
+ 6.At database in MongoDB,open the aqi_history collection. You should see a new "Document" with your IP, City, and the AQI value you just fetched.
+
 
