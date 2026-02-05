@@ -1,7 +1,7 @@
 # AirAware: Location-based AQI Service
 
 
-## 🧠 Design Decisions
+##  Design Decisions
 
 As per the project requirements, the following architectural choices were made:
 
@@ -31,4 +31,5 @@ A common issue in development is the client IP appearing as `127.0.0.1` (localho
 1. Clone the repository.
 2. Install dependencies:
    ```bash
+
    pip install -r requirements.txt
