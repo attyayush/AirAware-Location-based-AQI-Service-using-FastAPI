@@ -1,37 +1,41 @@
 from fastapi import APIRouter, HTTPException, Request
 from models.schemas import AirQualityResponse
+from models.database import log_aqi_request, get_total_request_count, get_recent_history
 from services.ip_service import get_client_ip
 from services.geo_service import get_location_data
 from services.aqi_service import get_air_quality
-from loguru import logger
+from datetime import datetime
 
 router = APIRouter()
 
 @router.get("/aqi", response_model=AirQualityResponse)
 async def get_current_location_aqi(request: Request):
-    logger.info("Received request for current location AQI")
-
     
-    client_ip = request.client.host
-    if client_ip in ("127.0.0.1", "localhost"):
-        client_ip = await get_client_ip()
-
-    if not client_ip:
-        raise HTTPException(status_code=500, detail="Could not detect client IP")
-
-    
+    client_ip = await get_client_ip()
     geo_data = await get_location_data(client_ip)
     if not geo_data:
-        raise HTTPException(status_code=404, detail="Location data not found")
-
-    
+        raise HTTPException(status_code=404, detail="Location not found")
+        
     aqi_data = await get_air_quality(geo_data["lat"], geo_data["lon"])
-    if not aqi_data:
-        raise HTTPException(status_code=500, detail="AQI data retrieval failed")
+    
+    
+    result = {
+        "ip": client_ip,
+        "location": geo_data,
+        "aqi": aqi_data,
+        "source": "open-meteo",
+        "timestamp": datetime.utcnow()
+    }
+    
+   
+    await log_aqi_request(result)
+    return result
 
-  
-    return AirQualityResponse(
-        ip=client_ip,
-        location=geo_data,
-        aqi=aqi_data
-    )
+@router.get("/aqi/stats")
+async def get_stats():
+    count = await get_total_request_count()
+    return {"total_requests": count}
+
+@router.get("/aqi/history")
+async def get_history():
+    return await get_recent_history(5)
