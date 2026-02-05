@@ -1,0 +1,54 @@
+
+<html >
+<head>
+    
+    <title>AirAware Dashboard</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background: #f4f7f6; }
+        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        .aqi-value { font-size: 3rem; font-weight: bold; color: #2c3e50; margin: 10px 0; }
+        .category { font-size: 1.2rem; padding: 5px 15px; border-radius: 20px; color: white; display: inline-block; }
+        .good { background: #27ae60; }
+        .moderate { background: #f1c40f; color: black; }
+        .unhealthy { background: #e67e22; }
+    </style>
+</head>
+<body>
+    <div class="card" id="aqi-card">
+        <h2>Air Quality in <span id="city">...</span></h2>
+        <div class="aqi-value" id="aqi-num">--</div>
+        <div class="category" id="category">Detecting...</div>
+        <p>IP: <span id="ip">0.0.0.0</span></p>
+        <button onclick="fetchAQI()">Refresh Data</button>
+    </div>
+
+    <script>
+        async function fetchAQI() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/aqi');
+                const data = await response.json();
+                
+                document.getElementById('city').innerText = data.location.city;
+                document.getElementById('aqi-num').innerText = data.aqi.value;
+                document.getElementById('ip').innerText = data.ip;
+                
+                const catElement = document.getElementById('category');
+                catElement.innerText = data.aqi.category;
+                
+                // Color coding logic
+                const cat = data.aqi.category.toLowerCase();
+                catElement.className = 'category'; // reset
+                if (cat.includes('good')) catElement.classList.add('good');
+                else if (cat.includes('moderate')) catElement.classList.add('moderate');
+                else catElement.classList.add('unhealthy');
+                
+            } catch (error) {
+                console.error("Failed to fetch data", error);
+                document.getElementById('category').innerText = "Server Error";
+            }
+        }
+        
+        fetchAQI();
+    </script>
+</body>
+</html>
