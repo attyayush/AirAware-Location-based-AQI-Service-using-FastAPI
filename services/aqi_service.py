@@ -52,3 +52,5 @@ async def get_air_quality(lat: float, lon: float):
         except Exception as e:
             logger.error(f"AQI service error: {e}")
             return None
+            
+   
