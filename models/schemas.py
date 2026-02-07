@@ -1,18 +1,19 @@
 from pydantic import BaseModel
+from typing import Optional
 
-class LocationSchema(BaseModel):
+class LocationInfo(BaseModel):
     city: str
     region: str
     country: str
     lat: float
     lon: float
 
-class AQISchema(BaseModel):
+class AQIInfo(BaseModel):
     value: int
     category: str
 
-class AirQualityResponse (BaseModel):
-    ip: str
-    location: LocationSchema
-    aqi: AQISchema
+class AirQualityResponse(BaseModel):
+    ip: Optional[str] = "N/A"
+    location: LocationInfo
+    aqi: AQIInfo
     source: str = "open-meteo"
