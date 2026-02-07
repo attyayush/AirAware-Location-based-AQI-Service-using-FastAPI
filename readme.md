@@ -39,10 +39,11 @@ A common issue in development is the client IP appearing as `127.0.0.1` (localho
    4.Look for the message INFO: Application startup complete.
 4. Open browser and go to: http://127.0.0.1:8000/health
 
- You should see: {"status": "ok"}
+ You should see: {"status": "ok"}. By writing down any city name after  http://127.0.0.1:8000/aqi/by-city?name- you will get AQI of that city and http://127.0.0.1:8000/aqi gives AQI of current location.
  
  5.Run index.html
  
  6.At database in MongoDB,open the aqi_history collection. You should see a new "Document" with your IP, City, and the AQI value you just fetched.
+
 
 
